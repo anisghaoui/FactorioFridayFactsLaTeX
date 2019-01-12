@@ -2,7 +2,7 @@
 You will need python 3.6+ and pip
 
 ```bash
-> pip install FFFLaTeX
+> pip install --upgrade FFFLaTeX
 ```
 
 ## Launching the script
