@@ -1,9 +1,11 @@
 from setuptools import setup, find_packages
 
-
-setup(name='FFFLaTeX', version='1.1', packages=find_packages(),
-      install_requires=find_packages(),
-      url='https://github.com/helldragger/FactorioFridayFactsLaTeX/releases',
+print(find_packages())
+setup(name='FFFLaTeX', version='1.1', packages=[
+    "beautifulsoup4", "urllib3", "html5lib"],
+      install_requires=[
+    "beautifulsoup4", "urllib3", "html5lib"],
+      url='https://github.com/helldragger/FactorioFridayFactsLaTeX',
     license='', author='Helldragger',
     entry_points={
             'console_scripts': [
