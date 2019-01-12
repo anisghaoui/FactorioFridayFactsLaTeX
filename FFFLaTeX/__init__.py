@@ -1,64 +1,69 @@
 #  -*- coding: utf-8 -*-
 
+import os
+
 import urllib3
 from bs4 import BeautifulSoup, NavigableString
-import os
+
 
 imgUrls = set()
 imgSize = {}
 imgNames = {}
 imgExtension = {}
 
-def sanitizeText(text:str):
-    return text\
-        .replace(' ', ' ')\
-        .replace("#", "\\#")\
-        .replace("&", "\\&")\
-        .replace("%", "\\%")\
+
+def sanitizeText(text: str):
+    return text.replace(' ', ' ').replace("#", "\\#").replace("&",
+                                                              "\\&").replace(
+        "%", "\\%")
 
 
-def base10toN(val:int):
+def base10toN(val: int):
     """Change a  to a base-n number.
     Up to base-36 is supported without special notation."""
-    num_rep={0:'a',
-         1:'b',
-         2:'c',
-         3:'d',
-         4:'e',
-         5:'f',
-         6:'g',
-         7:'h',
-         8:'i',
-         9:'j',
-         10:'k',
-         11:'l',
-         12:'m',
-         13:'n',
-         14:'o',
-         15:'p',
-         16:'q',
-         17:'r',
-         18:'s',
-         19:'t',
-         20:'u',
-         21:'v',
-         22:'w',
-         23:'x',
-         24:'y',
-         25:'z'}
-    new_num_string=''
-    current=val
+    num_rep = {
+        0:  'a',
+        1:  'b',
+        2:  'c',
+        3:  'd',
+        4:  'e',
+        5:  'f',
+        6:  'g',
+        7:  'h',
+        8:  'i',
+        9:  'j',
+        10: 'k',
+        11: 'l',
+        12: 'm',
+        13: 'n',
+        14: 'o',
+        15: 'p',
+        16: 'q',
+        17: 'r',
+        18: 's',
+        19: 't',
+        20: 'u',
+        21: 'v',
+        22: 'w',
+        23: 'x',
+        24: 'y',
+        25: 'z'
+    }
+    new_num_string = ''
+    current = val
     if current == 0:
         return num_rep[0]
-    while current!=0:
-        remainder=current%26
-        remainder_string=num_rep[remainder]
-        new_num_string=remainder_string+new_num_string
-        current=current//26
+    while current != 0:
+        remainder = current % 26
+        remainder_string = num_rep[remainder]
+        new_num_string = remainder_string + new_num_string
+        current = current // 26
     return new_num_string
+
 
 def generateName(index):
     return base10toN(index)
+
 
 def discoverDimensions(tableelement):
     count_rows, count_cells = 0, 0
@@ -66,10 +71,11 @@ def discoverDimensions(tableelement):
         if element.name in ["tr", "th"]:
             count_rows += 1
         if element.name in ["td"]:
-            count_cells +=1
-    return count_cells//count_rows
+            count_cells += 1
+    return count_cells // count_rows
 
-def generateLatexFromElement(element:NavigableString, size=0, inTable=False):
+
+def generateLatexFromElement(element: NavigableString, size=0, inTable=False):
     if element in ['\n', '\t', "\r\n", '\r']:
         return
     if element.name == "ul":
@@ -81,10 +87,10 @@ def generateLatexFromElement(element:NavigableString, size=0, inTable=False):
         out.write("\\end{itemize}\n")
     elif element.name == "table":
         size = discoverDimensions(element)
-        sizeStr= (size-1)*"c|"+"c"
+        sizeStr = (size - 1) * "c|" + "c"
 
         out.write("\\begin{figure}[H]\n\\resizebox{\\textwidth}{!}{\n\\begin{"
-                  "tabular}{"+sizeStr+"}\n")
+                  "tabular}{" + sizeStr + "}\n")
 
         generateLatexFromElement(element.tbody, size=size, inTable=True)
 
@@ -98,7 +104,7 @@ def generateLatexFromElement(element:NavigableString, size=0, inTable=False):
         for c in element.children:
             if c.name == "td":
                 generateLatexFromElement(c, inTable=True)
-                i+=1
+                i += 1
                 if (i < size):
                     out.write('&')
 
@@ -111,22 +117,21 @@ def generateLatexFromElement(element:NavigableString, size=0, inTable=False):
             generateLatexFromElement(c, inTable=True)
 
     elif element.name == "li":
-        out.write("\\item " + sanitizeText(element.text.lstrip().rstrip()) +
-                                           "\n")
+        out.write(
+            "\\item " + sanitizeText(element.text.lstrip().rstrip()) + "\n")
     elif element.name == "p":
         try:
             if (sanitizeText(element.text.lstrip().rstrip()) != "Webm/Mp4 "
                                                                 "playback not supported on your device."):
-               out.write("\\paragraph{}\n"
-                         + sanitizeText(element.text.lstrip().rstrip())
-                         + "\n")
+                out.write("\\paragraph{}\n" + sanitizeText(
+                    element.text.lstrip().rstrip()) + "\n")
         except Exception as e:
             print(e)
         for c in element.children:
             generateLatexFromElement(c)
     elif element.name == "h2":
-        out.write("\\section{" + sanitizeText(element.text.lstrip().rstrip())
-                  + "}\n")
+        out.write(
+            "\\section{" + sanitizeText(element.text.lstrip().rstrip()) + "}\n")
     elif element.name == "h3":
         out.write("\\subsection{" + sanitizeText(element.text.lstrip(
 
@@ -135,23 +140,24 @@ def generateLatexFromElement(element:NavigableString, size=0, inTable=False):
         for c in element.children:
             generateLatexFromElement(c)
     elif element.name == "source":
-        out.write(
-            "\\begin{figure}[H]\n\\centering\\includemedia["
-            "width=0.88\\linewidth,height=0.5\\linewidth, "
-            "attachfiles, \
-            transparent," 
-            "activate=pagevisible," 
-            "noplaybutton, \
-            passcontext,\
-            flashvars={\
-                source="
-                + imgNames[element.attrs["src"]]+imgExtension[element.attrs["src"]]
-                +"&autoPlay=true &loop=true &scaleMode=letterbox }, "
-                 "addresource="
-            + imgNames[element.attrs["src"]]+imgExtension[element.attrs["src"]]
-            +"]{"
-            +"\\color{gray}\\framebox[0.4\\linewidth][c]{Loading Video}"
-            +"}{VPlayer9.swf}\\end{figure}\n")
+        if (imgExtension[element.attrs["src"]] == ".webm"): return
+
+        out.write("\\begin{figure}[H]\n\\centering\\includemedia["
+                  "width=0.88\\linewidth,height=0.5\\linewidth, "
+                  "attachfiles, \
+                  transparent,"
+                  "activate=pagevisible,"
+                  "noplaybutton, \
+                  passcontext,\
+                  flashvars={\
+                      source=" + imgNames[element.attrs["src"]] + imgExtension[
+                      element.attrs[
+                          "src"]] + "&autoPlay=true &loop=true &scaleMode=letterbox }, "
+                                    "addresource=" + imgNames[
+                      element.attrs["src"]] + imgExtension[element.attrs[
+            "src"]] + "]{" + "\\color{gray}\\framebox[0.4\\linewidth][c]{"
+                             "Loading Video}" + "}{VPlayer9.swf}\n\\end{"
+                                                "figure}\n")
 
     elif element.name == "img":
         if not inTable:
@@ -159,7 +165,6 @@ def generateLatexFromElement(element:NavigableString, size=0, inTable=False):
         out.write("\\" + imgNames[element.attrs["src"]])
         if not inTable:
             out.write("\\end{figure}\n")
-
 
 
 def ensure_dir(file_path):
@@ -170,6 +175,7 @@ def ensure_dir(file_path):
 
 def main():
     global out
+    global imgUrls
     print("FFF Latex document generator\n")
     num = input("Enter the number of the current FFF: ")
     while True:
@@ -193,7 +199,8 @@ def main():
         imgSize[link.get('src')] = width
 
     for link in soup.find_all('source'):
-        imgUrls.add(link.get('src'))
+        src = link.get('src')
+        imgUrls.add(src)
         width = link.get('width')
         if width is None:
             width = "0.8\\textwidth"
@@ -205,21 +212,22 @@ def main():
             num).lower() + "IMG" + generateName(i).lower()
         for ext in [".png", ".jpg", ".gif", ".mp4", ".webm"]:
             if imgUrl.endswith(ext):
-                if ext == ".webm":
-                    ext = ".mp4"
                 imgExtension[imgUrl] = ext
                 break
-        print(name, ", width=", imgSize[imgUrl])
+
+        print(imgUrl,"\t->\t",name, ", width=", imgSize[imgUrl])
         i += 1
         imgNames[imgUrl] = name
-    
-    doc_name = "FFF"+str(num)
 
-    ensure_dir("./"+doc_name+"/")
+    imgUrls = filter(lambda url : not url.endswith(".webm"), imgUrls)
 
-    with open("./"+doc_name+"/"+doc_name+".tex", "w") as out:
-        header = \
-    """
+
+    doc_name = "FFF" + str(num)
+
+    ensure_dir("./" + doc_name + "/")
+
+    with open("./" + doc_name + "/" + doc_name + ".tex", "w") as out:
+        header = """
     \\documentclass{article}
     
     \\usepackage[cp1252]{inputenc}
@@ -235,40 +243,34 @@ def main():
 
         out.write(header)
 
-        #generate constants
+        # generate constants
         for imgUrl in imgUrls:
             args = []
             if imgSize[imgUrl] is not None:
-                args.append("width="+str(imgSize[imgUrl]))
+                args.append("width=" + str(imgSize[imgUrl]))
 
-            out.write("\\write18{wget -N "+imgUrl+" -P ../out/pics/ -O "+imgNames[
-                imgUrl]+imgExtension[imgUrl]+" }\n"
-                      +"\\newcommand{\\"
-                      +imgNames[imgUrl]
-                      +"}{\\includegraphics["
-                      +','.join(args)
-                      +"]{"
-                      +imgNames[imgUrl]+imgExtension[imgUrl]
-                      +"}}\n")
+            out.write("\\write18{wget -N " + imgUrl + " -P ../out/pics/ -O " +
+                      imgNames[imgUrl] + imgExtension[
+                          imgUrl] + " }\n" + "\\newcommand{\\" + imgNames[
+                          imgUrl] + "}{\\includegraphics[" + ','.join(
+                args) + "]{" + imgNames[imgUrl] + imgExtension[imgUrl] + "}}\n")
 
-        out.write(
-    """
-    \\title{Traduction FFF numero """+str(num)+"""}
-    \\author{"""
-    +blog_url
-    +"""}
+        out.write("""
+    \\title{Traduction FFF numero """ + str(num) + """}
+    \\author{""" + blog_url + """}
     \\begin{document}
     \\maketitle
     \\tableofcontents
     """)
-        #generate content
+        # generate content
 
-        blog = soup.find("div",  class_="blog-post")
+        blog = soup.find("div", class_="blog-post")
 
         for element in blog.children:
             generateLatexFromElement(element)
 
         out.write("\\end{document}\n")
+
 
 if __name__ == "__main__":
     main()
