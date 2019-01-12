@@ -15,7 +15,7 @@ imgExtension = {}
 def sanitizeText(text: str):
     return text.replace(' ', ' ').replace("#", "\\#").replace("&",
                                                               "\\&").replace(
-        "%", "\\%")
+        "%", "\\%").replace("✕", "x")
 
 
 def base10toN(val: int):
