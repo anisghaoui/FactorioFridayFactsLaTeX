@@ -1,45 +1,20 @@
+# Executable version
+as the name says, it's executable, just run it
 
-# Installing this
+# Installable version
 
-Just download the zipped version you want, and unzip it anywhere you want!
+## Installation
+You will need python 3.6+ and pip
 
-# Running this
-
-## Activating the virtual environment
-
-### UNIX systems
-on bash:
-``` bash
-$ source <venv>/bin/activate
-```
-
-on fish:
-``` bash
-$ . <venv>/bin/activate.fish
-```
-
-on csh:
-``` bash
-$ source <venv>/bin/activate.csh
-```
-
-### Windows systems
-
-on cmd:
-``` bash
-> <venv>\Scripts\activate.bat
-```
-
-on Powershell:
-``` bash
-> <venv>\Scripts\Activate.ps1
+```bash
+> pip install FFFLaTeX
 ```
 
 ## Launching the script
 
-Just as you would launch any other python script:
+Just as you would launch any other python script after installation:
 
 ``` bash
-python .\src\FFFLaTeX.py
+> FFFLaTeX
 ```
 
