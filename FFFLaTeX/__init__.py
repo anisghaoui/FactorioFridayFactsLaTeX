@@ -212,11 +212,12 @@ def main():
         print(name, ", width=", imgSize[imgUrl])
         i += 1
         imgNames[imgUrl] = name
+    
+    doc_name = "FFF"+str(num)
 
-    ensure_dir("../out/")
+    ensure_dir("./"+doc_name+"/")
 
-
-    with open("../out/FFF"+str(num)+".tex", "w") as out:
+    with open("./"+doc_name+"/"+doc_name+".tex", "w") as out:
         header = \
     """
     \\documentclass{article}

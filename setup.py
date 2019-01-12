@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-setup(name='FFFLaTeX', version='1.0', packages=find_packages(),
+setup(name='FFFLaTeX', version='1.1', packages=find_packages(),
       install_requires=find_packages(),
       url='https://github.com/helldragger/FactorioFridayFactsLaTeX/releases',
     license='', author='Helldragger',
