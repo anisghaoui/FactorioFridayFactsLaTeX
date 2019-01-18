@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 def get_latex_for_element(name: str):
     if name in tagTex.keys():
         return tagTex[name]

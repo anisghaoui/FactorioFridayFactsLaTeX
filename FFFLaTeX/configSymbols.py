@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 from bs4 import NavigableString
 
 from configLaTeX import get_latex_for_element
@@ -95,8 +96,7 @@ def playbackCheck(element: NavigableString, payload: dict):
 
 
 def addVideo(element: NavigableString, payload: dict):
-    from FFFparser import imgExtension
-    if (imgExtension[element.attrs["src"]] == ".webm"):
+    if (payload["__imgExt"][element.attrs["src"]] == ".webm"):
         return payload
 
     payload["TeX"] += """
@@ -113,16 +113,15 @@ def addVideo(element: NavigableString, payload: dict):
         flashvars={
             source="""
 
-    from FFFparser import imgNames
-    payload["TeX"] += imgNames[element.attrs["src"]]
-    payload["TeX"] += imgExtension[element.attrs["src"]]
+    payload["TeX"] += payload["__imgNames"][element.attrs["src"]]
+    payload["TeX"] += payload["__imgExt"][element.attrs["src"]]
     payload["TeX"] += """
             &autoPlay=true 
             &loop=true 
             &scaleMode=letterbox }, 
         addresource="""
-    payload["TeX"] += imgNames[element.attrs["src"]]
-    payload["TeX"] += imgExtension[element.attrs["src"]]
+    payload["TeX"] += payload["__imgNames"][element.attrs["src"]]
+    payload["TeX"] += payload["__imgExt"][element.attrs["src"]]
     payload["TeX"] += """]
     {{\\color{gray} Loading Video }}
     {VPlayer9.swf}\n
@@ -134,8 +133,7 @@ def addImage(element: NavigableString, payload: dict):
     figure = "inTable" not in payload.keys()
     if figure:
         payload["TeX"] += "\\begin{figure}[H]\n\\centering"
-    from FFFparser import imgNames
-    payload["TeX"] += "\\" + imgNames[element.attrs["src"]]
+    payload["TeX"] += "\\" + payload["__imgNames"][element.attrs["src"]]
     if figure:
         payload["TeX"] += "\\end{figure}\n"
     return payload
