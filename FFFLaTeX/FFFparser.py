@@ -16,7 +16,7 @@ imgExtension = {}
 
 
 def print_help():
-    print("USAGE : FFFLaTeX [<Number of FFF>]")
+    print("USAGE : FFFLaTeX [<Number of FFF>|latest]")
 
 
 def ensure_dir(file_path):
