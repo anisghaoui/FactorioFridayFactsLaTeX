@@ -25,11 +25,29 @@ def ensure_dir(file_path):
         os.makedirs(directory)
 
 
+def latest_version():
+    blog_list_url = "https://www.factorio.com/blog/"
+    http = urllib3.PoolManager()
+    response = http.request('GET', blog_list_url)
+
+    soup = BeautifulSoup(response.data.decode('utf-8'), 'html5lib')
+    last_blog_listing = soup.h2.find_next("ul").find_next("li")
+    url = "https://factorio.com" + last_blog_listing.find_next("a").get("href")
+    name = last_blog_listing.find_next("a").text.lstrip().rstrip()
+    author = last_blog_listing.find_next("div").text.lstrip().rstrip()
+    return (name, author, url)
+
 def main(*args, **kwargs):
     global out
     global imgUrls
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     print("FFF Latex document generator\n")
 
+    print("Latest FFF:\t")
+    latest_version_data = latest_version()
+    print("\n".join(latest_version_data))
+
+    blog_url = latest_version_data[2]
     if len(sys.argv) == 1:
         num = input("Enter the number of the current FFF: ")
         while True:
@@ -41,14 +59,15 @@ def main(*args, **kwargs):
     elif len(sys.argv) == 2:
         try:
             num = int(sys.argv[1])
+            blog_url = "https://factorio.com/blog/post/fff-" + str(num)
         except Exception as e:
-            print_help()
-            exit(-1)
+            if sys.argv[1] != "latest":
+                print_help()
+                return
     else:
         print_help()
-        exit(-1)
+        return
 
-    blog_url = "https://factorio.com/blog/post/fff-" + str(num)
     http = urllib3.PoolManager()
     response = http.request('GET', blog_url)
 
