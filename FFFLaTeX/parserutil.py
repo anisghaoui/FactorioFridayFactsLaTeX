@@ -3,6 +3,8 @@ from typing import Optional
 
 from bs4 import NavigableString
 
+import FFFLaTeX.configSymbols as symbols
+
 
 def base_10_to_n(val: int):
     """Change a  to a base-n number.
@@ -52,8 +54,7 @@ def generate_name(index: int):
 
 
 def get_symbol_value(element: NavigableString, symbol: str):
-    from configSymbols import symbols
-    data = symbols[symbol]
+    data = symbols.symbols[symbol]
     if data is str:
         return data
     else:
