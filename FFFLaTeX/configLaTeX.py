@@ -79,5 +79,8 @@ tagTex = {
 """,
     "img":            """
 @addImage
+""",
+    "a":              """
+@addLink
 """
 }

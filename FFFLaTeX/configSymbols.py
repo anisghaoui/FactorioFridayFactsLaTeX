@@ -3,6 +3,19 @@ from bs4 import NavigableString
 from configLaTeX import get_latex_for_element
 
 
+def sanitizeString(text: str) -> str:
+    cursed = {
+        "#":    "\\#",
+        "&":    "\\&",
+        "%":    "\\%",
+        "✕":    "x",
+        "\xa0": " "
+    }
+    for c in cursed.keys():
+        text = text.replace(c, cursed[c])
+    return text.lstrip().rstrip()
+
+
 def generateLatexFromElement(element: NavigableString, payload: dict):
     if element in ['\n', '\t', "\r\n", '\r']:
         return ""
@@ -66,17 +79,7 @@ def strippedText(element: NavigableString, payload: dict):
 
 
 def sanitizeText(element: NavigableString, payload: dict):
-    text = element.text
-    cursed = {
-        "#":    "\\#",
-        "&":    "\\&",
-        "%":    "\\%",
-        "✕":    "x",
-        "\xa0": " "
-    }
-    for c in cursed.keys():
-        text = text.replace(c, cursed[c])
-    payload["TeX"] = text.lstrip().rstrip()
+    payload["TeX"] = sanitizeString(element.text)
     return payload
 
 
@@ -138,6 +141,12 @@ def addImage(element: NavigableString, payload: dict):
     return payload
 
 
+def addLink(element: NavigableString, payload: dict):
+    payload["TeX"] += "\\href{" + element.attrs["href"] + "}{" + sanitizeString(
+        element.text) + "}"
+    return payload
+
+
 def FFFurl(element: NavigableString, payload: dict):
     payload["TeX"] += payload["__url"]
     return payload
@@ -161,6 +170,7 @@ symbols = {
     "@playbackCheck":             playbackCheck,
     "@addVideo":                  addVideo,
     "@addImage":                  addImage,
+    "@addLink":                   addLink,
     "@FFFurl":                    FFFurl,
     "@FFFnum":                    FFFnum
 
