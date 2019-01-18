@@ -91,10 +91,9 @@ def process_symbols(element: Optional[NavigableString], payload: dict,
         # check if symbol
         word = peek_next_word(temp_data)
 
-        from configSymbols import symbols
-        if word in symbols.keys():
+        if word in symbols.symbols.keys():
             # if yes, we send the context to the function and get its results
-            results = symbols[word](element, payload)
+            results = symbols.symbols[word](element, payload)
 
             # then we use the results as new data for the context and add
             # those to the current local payload.

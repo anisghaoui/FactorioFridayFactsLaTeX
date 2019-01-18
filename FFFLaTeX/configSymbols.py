@@ -1,6 +1,7 @@
 #  -*- coding: utf-8 -*-
 from bs4 import NavigableString
 
+import FFFLaTeX.parserutil as util
 from FFFLaTeX.configLaTeX import get_latex_for_element
 
 
@@ -20,9 +21,8 @@ def sanitize_string(text: str) -> str:
 def generate_latex_from_element(element: NavigableString, payload: dict):
     if element in ['\n', '\t', "\r\n", '\r']:
         return ""
-    from parserutil import process_symbols
-    data = process_symbols(element, payload,
-                           get_latex_for_element(element.name))
+    data = util.process_symbols(element, payload,
+                                get_latex_for_element(element.name))
     return data
 
 
