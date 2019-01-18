@@ -37,6 +37,16 @@ You can also use the command line directly as of 1.4
 ....... ./FFF277/
 ```
 
+You can also just generate the latest FFF now (xxx being the latest fff version on the factorio.com/blog/ listing)
+
+
+```bash
+> FFFLaTeX latest
+....
+> ls
+....... ./FFFXXX/
+```
+
 ## Configuration
 
 You can now configure both the LaTeX templates per tag but also use an hybrid scripting system!
