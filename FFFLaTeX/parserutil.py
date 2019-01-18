@@ -3,8 +3,12 @@ from typing import Optional
 
 from bs4 import NavigableString
 
-import FFFLaTeX.configSymbols as symbols
 
+def get_latex_for_element(name: str):
+    import FFFLaTeX.configLaTeX as latex
+    if name in latex.tagTex.keys():
+        return latex.tagTex[name]
+    return ""
 
 def base_10_to_n(val: int):
     """Change a  to a base-n number.
@@ -54,7 +58,8 @@ def generate_name(index: int):
 
 
 def get_symbol_value(element: NavigableString, symbol: str):
-    data = symbols.symbols[symbol]
+    from FFFLaTeX.configSymbols import symbols
+    data = symbols[symbol]
     if data is str:
         return data
     else:
@@ -72,6 +77,7 @@ def peek_next_word(data: str):
 
 def process_symbols(element: Optional[NavigableString], payload: dict,
                     data: str, ):
+    from FFFLaTeX.configSymbols import symbols
     # those arguments are needed for context
     if data is None:
         return ""
@@ -91,9 +97,9 @@ def process_symbols(element: Optional[NavigableString], payload: dict,
         # check if symbol
         word = peek_next_word(temp_data)
 
-        if word in symbols.symbols.keys():
+        if word in symbols.keys():
             # if yes, we send the context to the function and get its results
-            results = symbols.symbols[word](element, payload)
+            results = symbols[word](element, payload)
 
             # then we use the results as new data for the context and add
             # those to the current local payload.
@@ -109,4 +115,12 @@ def process_symbols(element: Optional[NavigableString], payload: dict,
         cursor_i += len(payload["TeX"])
     # when all the symbols have been processed and no more data has been added,
     # we return the data we had.
+    return data
+
+
+def generate_latex_from_element(element: NavigableString, payload: dict):
+    if element in ['\n', '\t', "\r\n", '\r']:
+        return ""
+    data = process_symbols(element, payload,
+                           get_latex_for_element(element.name))
     return data

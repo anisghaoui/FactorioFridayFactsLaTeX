@@ -1,8 +1,7 @@
 #  -*- coding: utf-8 -*-
 from bs4 import NavigableString
 
-import FFFLaTeX.parserutil as util
-from FFFLaTeX.configLaTeX import get_latex_for_element
+from FFFLaTeX.parserutil import generate_latex_from_element
 
 
 def sanitize_string(text: str) -> str:
@@ -18,21 +17,13 @@ def sanitize_string(text: str) -> str:
     return text.lstrip().rstrip()
 
 
-def generate_latex_from_element(element: NavigableString, payload: dict):
-    if element in ['\n', '\t', "\r\n", '\r']:
-        return ""
-    data = util.process_symbols(element, payload,
-                                get_latex_for_element(element.name))
-    return data
-
-
 def generate_latex_from_children(element: NavigableString, payload: dict):
     for c in element.children:
         payload["TeX"] += generate_latex_from_element(c, payload)
     return payload
 
 
-def discover_dimensions(element: NavigableString, payload=dict):
+def discover_dimensions(element: NavigableString, payload: dict):
     count_rows, count_cells = 0, 0
     for c in element.descendants:
         if c.name in ["tr", "th"]:

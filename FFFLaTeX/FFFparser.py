@@ -6,10 +6,6 @@ import sys
 import urllib3
 from bs4 import BeautifulSoup
 
-import FFFLaTeX.configLaTeX as latex
-import FFFLaTeX.configSymbols as symbols
-import FFFLaTeX.parserutil as util
-
 
 def print_help():
     print("USAGE : FFFLaTeX [<Number of FFF>|latest]")
@@ -94,7 +90,8 @@ def generate_mp4_data(soup, img_urls, img_size):
 def generate_media_names(img_urls, img_extension, img_size, img_names):
     i = 0
     for img_url in img_urls:
-        name = "FFFparserIMG" + util.generate_name(i).lower()
+        from parserutil import generate_name
+        name = "FFFparserIMG" + generate_name(i).lower()
         for ext in [".png", ".jpg", ".gif", ".mp4", ".webm"]:
             if img_url.endswith(ext):
                 img_extension[img_url] = ext
@@ -120,6 +117,8 @@ def filter_out_incompatible_medias(img_urls):
 
 
 def main():
+    from FFFLaTeX.parserutil import get_latex_for_element, \
+        generate_latex_from_element, process_symbols
     img_urls = set()
     img_size = {}
     img_names = {}
@@ -155,8 +154,7 @@ def main():
             "__img_size": img_size
         }
 
-        out.write(util.process_symbols(None, payload,
-                                       latex.get_latex_for_element(
+        out.write(process_symbols(None, payload, get_latex_for_element(
                                            "documentHeader")))
 
         # generate constants
@@ -171,12 +169,10 @@ def main():
                           img_url] + "}{\\includegraphics[" + ','.join(
                 args) + "]{" + img_names[img_url] + img_ext[img_url] + "}}\n")
 
-        out.write(util.process_symbols(None, payload,
-                                       latex.get_latex_for_element(
+        out.write(process_symbols(None, payload, get_latex_for_element(
                                            "documentTitle")))
 
-        out.write(util.process_symbols(None, payload,
-                                       latex.get_latex_for_element(
+        out.write(process_symbols(None, payload, get_latex_for_element(
                                            "documentBegin")))
 
         # generate content
@@ -184,10 +180,9 @@ def main():
         blog = soup.find("div", class_="blog-post")
 
         for element in blog.children:
-            out.write(symbols.generate_latex_from_element(element, payload))
+            out.write(generate_latex_from_element(element, payload))
 
-        out.write(util.process_symbols(None, payload,
-                                       latex.get_latex_for_element(
+        out.write(process_symbols(None, payload, get_latex_for_element(
                                            "documentEnd")))
 
 
