@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 from bs4 import NavigableString
 
-from configLaTeX import get_latex_for_element
+from FFFLaTeX.configLaTeX import get_latex_for_element
 
 
 def sanitize_string(text: str) -> str:
@@ -96,7 +96,7 @@ def playback_check(element: NavigableString, payload: dict):
 
 
 def add_video(element: NavigableString, payload: dict):
-    if (payload["__imgExt"][element.attrs["src"]] == ".webm"):
+    if (payload["__img_ext"][element.attrs["src"]] == ".webm"):
         return payload
 
     payload["TeX"] += """
@@ -113,15 +113,15 @@ def add_video(element: NavigableString, payload: dict):
         flashvars={
             source="""
 
-    payload["TeX"] += payload["__imgNames"][element.attrs["src"]]
-    payload["TeX"] += payload["__imgExt"][element.attrs["src"]]
+    payload["TeX"] += payload["__img_names"][element.attrs["src"]]
+    payload["TeX"] += payload["__img_ext"][element.attrs["src"]]
     payload["TeX"] += """
             &autoPlay=true 
             &loop=true 
             &scaleMode=letterbox }, 
         addresource="""
-    payload["TeX"] += payload["__imgNames"][element.attrs["src"]]
-    payload["TeX"] += payload["__imgExt"][element.attrs["src"]]
+    payload["TeX"] += payload["__img_names"][element.attrs["src"]]
+    payload["TeX"] += payload["__img_ext"][element.attrs["src"]]
     payload["TeX"] += """]
     {{\\color{gray} Loading Video }}
     {VPlayer9.swf}\n
@@ -133,7 +133,7 @@ def add_image(element: NavigableString, payload: dict):
     figure = "inTable" not in payload.keys()
     if figure:
         payload["TeX"] += "\\begin{figure}[H]\n\\centering"
-    payload["TeX"] += "\\" + payload["__imgNames"][element.attrs["src"]]
+    payload["TeX"] += "\\" + payload["__img_names"][element.attrs["src"]]
     if figure:
         payload["TeX"] += "\\end{figure}\n"
     return payload
@@ -159,7 +159,6 @@ def fff_num(element: NavigableString, payload: dict):
 symbols = {
 
     "@table_size_str":               table_size_str,
-    "@generate_latex_from_element":  generate_latex_from_element,
     "@generate_latex_from_children": generate_latex_from_children,
     "@generate_table_cell_latex":    generate_table_cell_latex,
     "@table_flag_set":               table_flag_set,

@@ -33,7 +33,7 @@ tagTex = {
 """,
     "ul":             """
 \\begin{itemize}\n 
-    @generate_latex_from_element 
+    @generate_latex_from_children 
 \\end{itemize}\n
 """,
     "table":          """
@@ -42,7 +42,7 @@ tagTex = {
     @table_flag_set
     \\begin{ tabular }{ @table_size_str }\n 
         
-        @generate_latex_from_element 
+        @generate_latex_from_children 
         
     \\end{tabular}}\n
     @table_flag_clear

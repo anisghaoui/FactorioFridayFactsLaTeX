@@ -6,7 +6,9 @@ import sys
 import urllib3
 from bs4 import BeautifulSoup
 
-import parserutil as util
+import FFFLaTeX.configLaTeX as latex
+import FFFLaTeX.configSymbols as symbols
+import FFFLaTeX.parserutil as util
 
 
 def print_help():
@@ -68,40 +70,40 @@ def get_soup(url: str):
     return BeautifulSoup(response.data.decode('utf-8'), 'html5lib')
 
 
-def generate_img_data(soup, imgUrls, imgSize):
+def generate_img_data(soup, img_urls, img_size):
     for link in soup.find_all('img'):
-        imgUrls.add(link.get('src'))
+        img_urls.add(link.get('src'))
         width = link.get('width')
         if width is None:
             width = "0.8\\textwidth"
-        imgSize[link.get('src')] = width
-    return (soup, imgUrls, imgSize)
+        img_size[link.get('src')] = width
+    return (soup, img_urls, img_size)
 
 
-def generate_mp4_data(soup, imgUrls, imgSize):
+def generate_mp4_data(soup, img_urls, img_size):
     for link in soup.find_all('source'):
         src = link.get('src')
-        imgUrls.add(src)
+        img_urls.add(src)
         width = link.get('width')
         if width is None:
             width = "0.8\\textwidth"
-        imgSize[link.get('src')] = width
-    return (soup, imgUrls, imgSize)
+        img_size[link.get('src')] = width
+    return (soup, img_urls, img_size)
 
 
-def generate_media_names(imgUrls, imgExtension, imgSize, imgNames):
+def generate_media_names(img_urls, img_extension, img_size, img_names):
     i = 0
-    for imgUrl in imgUrls:
+    for img_url in img_urls:
         name = "FFFparserIMG" + util.generate_name(i).lower()
         for ext in [".png", ".jpg", ".gif", ".mp4", ".webm"]:
-            if imgUrl.endswith(ext):
-                imgExtension[imgUrl] = ext
+            if img_url.endswith(ext):
+                img_extension[img_url] = ext
                 break
 
-        print(imgUrl, "\t->\t", name, ", width=", imgSize[imgUrl])
+        print(img_url, "\t->\t", name, ", width=", img_size[img_url])
         i += 1
-        imgNames[imgUrl] = name
-    return (imgUrls, imgExtension, imgSize, imgNames)
+        img_names[img_url] = name
+    return (img_urls, img_extension, img_size, img_names)
 
 
 def get_blog_number(url):
@@ -113,15 +115,15 @@ def get_blog_number(url):
             return num
 
 
-def filter_out_incompatible_medias(imgUrls):
-    return filter(lambda url: not url.endswith(".webm"), imgUrls)
+def filter_out_incompatible_medias(img_urls):
+    return filter(lambda url: not url.endswith(".webm"), img_urls)
 
 
 def main():
-    imgUrls = set()
-    imgSize = {}
-    imgNames = {}
-    imgExt = {}
+    img_urls = set()
+    img_size = {}
+    img_names = {}
+    img_ext = {}
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     latest_version_data = get_latest_version_data()
@@ -129,12 +131,14 @@ def main():
     num = get_blog_number(blog_url)
     soup = get_soup(blog_url)
 
-    soup, imgUrls, imgSize = generate_img_data(soup, imgUrls, imgSize)
-    soup, imgUrls, imgSize = generate_mp4_data(soup, imgUrls, imgSize)
-    imgUrls, imgExt, imgSize, imgNames = generate_media_names(imgUrls, imgExt,
-                                                              imgSize, imgNames)
+    soup, img_urls, img_size = generate_img_data(soup, img_urls, img_size)
+    soup, img_urls, img_size = generate_mp4_data(soup, img_urls, img_size)
+    img_urls, img_ext, img_size, img_names = generate_media_names(img_urls,
+                                                                  img_ext,
+                                                                  img_size,
+                                                                  img_names)
 
-    imgUrls = filter_out_incompatible_medias(imgUrls)
+    img_urls = filter_out_incompatible_medias(img_urls)
 
     doc_name = "FFF" + str(num)
 
@@ -145,45 +149,46 @@ def main():
             "TeX":   "",
             "__num": num,
             "__url": blog_url,
-            "__imgUrls": imgUrls,
-            "__imgExt": imgExt,
-            "__imgNames": imgNames,
-            "__imgSize": imgSize
+            "__img_urls": img_urls,
+            "__img_ext": img_ext,
+            "__img_names": img_names,
+            "__img_size": img_size
         }
 
-        from configLaTeX import get_latex_for_element
-
         out.write(util.process_symbols(None, payload,
-                                       get_latex_for_element("documentHeader")))
+                                       latex.get_latex_for_element(
+                                           "documentHeader")))
 
         # generate constants
-        for imgUrl in imgUrls:
+        for img_url in img_urls:
             args = []
-            if imgSize[imgUrl] is not None:
-                args.append("width=" + str(imgSize[imgUrl]))
+            if img_size[img_url] is not None:
+                args.append("width=" + str(img_size[img_url]))
 
-            out.write("\\write18{wget -N " + imgUrl + " -P ../out/pics/ -O " +
-                      imgNames[imgUrl] + imgExt[
-                          imgUrl] + " }\n" + "\\newcommand{\\" + imgNames[
-                          imgUrl] + "}{\\includegraphics[" + ','.join(
-                args) + "]{" + imgNames[imgUrl] + imgExt[imgUrl] + "}}\n")
-
-        out.write(util.process_symbols(None, payload,
-                                  get_latex_for_element("documentTitle")))
+            out.write("\\write18{wget -N " + img_url + " -P ../out/pics/ -O " +
+                      img_names[img_url] + img_ext[
+                          img_url] + " }\n" + "\\newcommand{\\" + img_names[
+                          img_url] + "}{\\includegraphics[" + ','.join(
+                args) + "]{" + img_names[img_url] + img_ext[img_url] + "}}\n")
 
         out.write(util.process_symbols(None, payload,
-                                       get_latex_for_element("documentBegin")))
+                                       latex.get_latex_for_element(
+                                           "documentTitle")))
+
+        out.write(util.process_symbols(None, payload,
+                                       latex.get_latex_for_element(
+                                           "documentBegin")))
 
         # generate content
 
         blog = soup.find("div", class_="blog-post")
 
         for element in blog.children:
-            from configSymbols import generateLatexFromElement
-            out.write(generateLatexFromElement(element, payload))
+            out.write(symbols.generate_latex_from_element(element, payload))
 
         out.write(util.process_symbols(None, payload,
-                                       get_latex_for_element("documentEnd")))
+                                       latex.get_latex_for_element(
+                                           "documentEnd")))
 
 
 if __name__ == "__main__":

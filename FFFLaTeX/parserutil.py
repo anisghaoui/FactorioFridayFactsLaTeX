@@ -1,4 +1,6 @@
 #  -*- coding: utf-8 -*-
+from typing import Optional
+
 from bs4 import NavigableString
 
 
@@ -67,7 +69,8 @@ def peek_next_word(data: str):
     return word
 
 
-def process_symbols(element: NavigableString, payload: dict, data: str, ):
+def process_symbols(element: Optional[NavigableString], payload: dict,
+                    data: str, ):
     # those arguments are needed for context
     if data is None:
         return ""
