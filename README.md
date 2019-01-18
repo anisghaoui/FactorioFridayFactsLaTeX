@@ -1,3 +1,14 @@
+[![](https://img.shields.io/pypi/dm/FFFLaTeX.svg)](https://pypi.org/project/FFFLaTeX/)
+[![](https://img.shields.io/pypi/v/FFFLaTeX.svg)](https://pypi.org/project/FFFLaTeX/)
+
+![](https://img.shields.io/pypi/pyversions/FFFLaTeX.svg)
+![](https://img.shields.io/pypi/wheel/FFFLaTeX.svg)
+
+
+![](https://img.shields.io/github/license/helldragger/FactorioFridayFactsLaTeX.svg)
+![](https://img.shields.io/github/languages/code-size/helldragger/FactorioFridayFactsLaTeX.svg)
+![](https://img.shields.io/librariesio/sourcerank/pypi/FFFLaTeX.svg)
+
 ## Installation
 You will need python 3.6+ and pip
 
