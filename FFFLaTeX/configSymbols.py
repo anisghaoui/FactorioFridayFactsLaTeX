@@ -4,7 +4,7 @@ from bs4 import NavigableString
 from configLaTeX import get_latex_for_element
 
 
-def sanitizeString(text: str) -> str:
+def sanitize_string(text: str) -> str:
     cursed = {
         "#":    "\\#",
         "&":    "\\&",
@@ -17,7 +17,7 @@ def sanitizeString(text: str) -> str:
     return text.lstrip().rstrip()
 
 
-def generateLatexFromElement(element: NavigableString, payload: dict):
+def generate_latex_from_element(element: NavigableString, payload: dict):
     if element in ['\n', '\t', "\r\n", '\r']:
         return ""
     from parserutil import process_symbols
@@ -26,13 +26,13 @@ def generateLatexFromElement(element: NavigableString, payload: dict):
     return data
 
 
-def generateLatexFromChildren(element: NavigableString, payload: dict):
+def generate_latex_from_children(element: NavigableString, payload: dict):
     for c in element.children:
-        payload["TeX"] += generateLatexFromElement(c, payload)
+        payload["TeX"] += generate_latex_from_element(c, payload)
     return payload
 
 
-def discoverDimensions(element: NavigableString, payload=dict):
+def discover_dimensions(element: NavigableString, payload=dict):
     count_rows, count_cells = 0, 0
     for c in element.descendants:
         if c.name in ["tr", "th"]:
@@ -43,27 +43,27 @@ def discoverDimensions(element: NavigableString, payload=dict):
     return payload
 
 
-def tableSizeStr(element: NavigableString, payload: dict):
-    payload = discoverDimensions(element, payload)
+def table_size_str(element: NavigableString, payload: dict):
+    payload = discover_dimensions(element, payload)
     payload["TeX"] = (payload["tableSize"] - 1) * "c|" + "c"
     return payload
 
 
-def tableFlagSet(element: NavigableString, payload: dict):
+def table_flag_set(element: NavigableString, payload: dict):
     payload["inTable"] = True
     return payload
 
 
-def tableFlagClear(element: NavigableString, payload: dict):
+def table_flag_clear(element: NavigableString, payload: dict):
     del payload["inTable"]
     return payload
 
 
-def generateTableCellLaTeX(element: NavigableString, payload: dict):
+def generate_table_cell_latex(element: NavigableString, payload: dict):
     i = 0
     for c in element.children:
         if c.name == "td":
-            payload["TeX"] += generateLatexFromElement(c, payload)
+            payload["TeX"] += generate_latex_from_element(c, payload)
             i += 1
             if (i < payload["tableSize"]):
                 payload["TeX"] += '&'
@@ -72,21 +72,21 @@ def generateTableCellLaTeX(element: NavigableString, payload: dict):
     return payload
 
 
-def strippedText(element: NavigableString, payload: dict):
+def stripped_text(element: NavigableString, payload: dict):
     payload["TeX"] += element.text.lstrip().rstrip()
     for c in element.children:
-        payload["TeX"] += generateLatexFromElement(c, payload)
+        payload["TeX"] += generate_latex_from_element(c, payload)
     return payload
 
 
-def sanitizeText(element: NavigableString, payload: dict):
-    payload["TeX"] = sanitizeString(element.text)
+def sanitize_text(element: NavigableString, payload: dict):
+    payload["TeX"] = sanitize_string(element.text)
     return payload
 
 
-def playbackCheck(element: NavigableString, payload: dict):
+def playback_check(element: NavigableString, payload: dict):
     try:
-        text = sanitizeText(element, payload)["TeX"]
+        text = sanitize_text(element, payload)["TeX"]
         if (text.find("Webm/Mp4 playback not supported on your device.") != -1):
             payload["TeX"] = "\\paragraph{}\n" + text + "\n"
     except Exception as e:
@@ -95,7 +95,7 @@ def playbackCheck(element: NavigableString, payload: dict):
         return payload
 
 
-def addVideo(element: NavigableString, payload: dict):
+def add_video(element: NavigableString, payload: dict):
     if (payload["__imgExt"][element.attrs["src"]] == ".webm"):
         return payload
 
@@ -129,7 +129,7 @@ def addVideo(element: NavigableString, payload: dict):
     return payload
 
 
-def addImage(element: NavigableString, payload: dict):
+def add_image(element: NavigableString, payload: dict):
     figure = "inTable" not in payload.keys()
     if figure:
         payload["TeX"] += "\\begin{figure}[H]\n\\centering"
@@ -139,37 +139,38 @@ def addImage(element: NavigableString, payload: dict):
     return payload
 
 
-def addLink(element: NavigableString, payload: dict):
-    payload["TeX"] += "\\href{" + element.attrs["href"] + "}{" + sanitizeString(
+def add_link(element: NavigableString, payload: dict):
+    payload["TeX"] += "\\href{" + element.attrs[
+        "href"] + "}{" + sanitize_string(
         element.text) + "}"
     return payload
 
 
-def FFFurl(element: NavigableString, payload: dict):
+def fff_url(element: NavigableString, payload: dict):
     payload["TeX"] += payload["__url"]
     return payload
 
 
-def FFFnum(element: NavigableString, payload: dict):
+def fff_num(element: NavigableString, payload: dict):
     payload["TeX"] += str(payload["__num"])
     return payload
 
 
 symbols = {
 
-    "@tableSizeStr":              tableSizeStr,
-    "@generateLatexFromElement":  generateLatexFromChildren,
-    "@generateLatexFromChildren": generateLatexFromChildren,
-    "@generateTableCellLaTeX":    generateTableCellLaTeX,
-    "@tableFlagSet":              tableFlagSet,
-    "@tableFlagClear":            tableFlagClear,
-    "@strippedText":              strippedText,
-    "@sanitizeText":              sanitizeText,
-    "@playbackCheck":             playbackCheck,
-    "@addVideo":                  addVideo,
-    "@addImage":                  addImage,
-    "@addLink":                   addLink,
-    "@FFFurl":                    FFFurl,
-    "@FFFnum":                    FFFnum
+    "@table_size_str":               table_size_str,
+    "@generate_latex_from_element":  generate_latex_from_element,
+    "@generate_latex_from_children": generate_latex_from_children,
+    "@generate_table_cell_latex":    generate_table_cell_latex,
+    "@table_flag_set":               table_flag_set,
+    "@table_flag_clear":             table_flag_clear,
+    "@stripped_text":                stripped_text,
+    "@sanitize_text":                sanitize_text,
+    "@playback_check":               playback_check,
+    "@add_video":                    add_video,
+    "@add_image":                    add_image,
+    "@add_link":                     add_link,
+    "@fff_url":                      fff_url,
+    "@fff_num":                      fff_num
 
 }
