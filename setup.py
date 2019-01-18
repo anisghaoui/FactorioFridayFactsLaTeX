@@ -2,12 +2,12 @@ from setuptools import find_packages, setup
 
 
 print(find_packages())
-setup(name='FFFLaTeX', version='1.4', packages=[
+setup(name='FFFLaTeX', version='1.5', packages=[
     "FFFLaTeX"],
       install_requires=[
     "beautifulsoup4", "urllib3", "html5lib"],
       url='https://github.com/helldragger/FactorioFridayFactsLaTeX',
-      license='', author='Helldragger',
+      license='lGPL v3', author='Helldragger',
       entry_points={
             'console_scripts': [
                 'FFFLaTeX = FFFLaTeX:main'
