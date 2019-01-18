@@ -43,7 +43,7 @@ You can now configure both the LaTeX templates per tag but also use an hybrid sc
 
 This hybrid system lets you call any registered python function from the configSymbol.py file at specific points in your LaTeX templates, allowing you to generate your document dynamically!
 
-![Config scheme][./Config.PNG]
+![Config scheme](Config.PNG)
 
 The LaTeX templates can be modified in the configLaTeX.py file
 
