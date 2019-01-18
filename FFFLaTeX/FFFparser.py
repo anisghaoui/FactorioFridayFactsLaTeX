@@ -88,9 +88,10 @@ def generate_mp4_data(soup, img_urls, img_size):
 
 
 def generate_media_names(img_urls, img_extension, img_size, img_names):
+    from FFFLaTeX.parserutil import generate_name
+
     i = 0
     for img_url in img_urls:
-        from parserutil import generate_name
         name = "FFFparserIMG" + generate_name(i).lower()
         for ext in [".png", ".jpg", ".gif", ".mp4", ".webm"]:
             if img_url.endswith(ext):
