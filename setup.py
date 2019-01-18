@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 
 print(find_packages())
-setup(name='FFFLaTeX', version='1.5', packages=[
+setup(name='FFFLaTeX', version='1.5.1', packages=[
     "FFFLaTeX"],
       install_requires=[
     "beautifulsoup4", "urllib3", "html5lib"],
