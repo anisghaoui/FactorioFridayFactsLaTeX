@@ -8,8 +8,7 @@ setup(name='FFFLaTeX', version='1.5.1.1', packages=find_packages(),
       url='https://github.com/helldragger/FactorioFridayFactsLaTeX',
       license='lGPL v3', author='Helldragger',
       entry_points={
-            'console_scripts': [
-                'FFFLaTeX = FFFLaTeX:main'
+            'console_scripts': ['FFFLaTeX = FFFLaTeX.FFFparser:main'
             ]
         },
       keywords="Factorio LaTeX",
@@ -22,4 +21,4 @@ setup(name='FFFLaTeX', version='1.5.1.1', packages=find_packages(),
                    "License v3 or later (LGPLv3+)",
                    "Programming Language :: Python :: Implementation :: "
                    "CPython", "Topic :: Utilities",
-                   "Operating System :: OS Independent", ])
+                   "Operating System :: OS Independent"])
