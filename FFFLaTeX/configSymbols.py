@@ -1,29 +1,40 @@
 #  -*- coding: utf-8 -*-
-from bs4 import NavigableString
+from typing import Union
+
+from bs4 import NavigableString, Tag
 
 from FFFLaTeX.parserutil import generate_latex_from_element
 
 
-def sanitize_string(text: str) -> str:
+def sanitize_string(text: Union[Tag, NavigableString, str]) -> str:
+    if isinstance(text, Tag):
+        text = text.text
+
     cursed = {
         "#":    "\\#",
         "&":    "\\&",
         "%":    "\\%",
         "✕":    "x",
-        "\xa0": " "
+        "$":    "\\$",
+        "\xa0": " ",
+        "Webm/Mp4 playback not supported on your device.": ""
     }
     for c in cursed.keys():
         text = text.replace(c, cursed[c])
     return text.lstrip().rstrip()
 
 
-def generate_latex_from_children(element: NavigableString, payload: dict):
-    for c in element.children:
-        payload["TeX"] += generate_latex_from_element(c, payload)
+def generate_latex_from_children(element: Union[Tag, NavigableString],
+                                 payload: dict):
+    if isinstance(element, Tag):
+        for c in element.children:
+            payload["TeX"] += generate_latex_from_element(c, payload)
+    else:
+        payload["TeX"] += generate_latex_from_element(element, payload)
     return payload
 
 
-def discover_dimensions(element: NavigableString, payload: dict):
+def discover_dimensions(element: Union[Tag, NavigableString], payload: dict):
     count_rows, count_cells = 0, 0
     for c in element.descendants:
         if c.name in ["tr", "th"]:
@@ -34,23 +45,24 @@ def discover_dimensions(element: NavigableString, payload: dict):
     return payload
 
 
-def table_size_str(element: NavigableString, payload: dict):
+def table_size_str(element: Union[Tag, NavigableString], payload: dict):
     payload = discover_dimensions(element, payload)
     payload["TeX"] = (payload["tableSize"] - 1) * "c|" + "c"
     return payload
 
 
-def table_flag_set(element: NavigableString, payload: dict):
+def table_flag_set(element: Union[Tag, NavigableString], payload: dict):
     payload["inTable"] = True
     return payload
 
 
-def table_flag_clear(element: NavigableString, payload: dict):
+def table_flag_clear(element: Union[Tag, NavigableString], payload: dict):
     del payload["inTable"]
     return payload
 
 
-def generate_table_cell_latex(element: NavigableString, payload: dict):
+def generate_table_cell_latex(element: Union[Tag, NavigableString],
+                              payload: dict):
     i = 0
     for c in element.children:
         if c.name == "td":
@@ -63,30 +75,19 @@ def generate_table_cell_latex(element: NavigableString, payload: dict):
     return payload
 
 
-def stripped_text(element: NavigableString, payload: dict):
-    payload["TeX"] += element.text.lstrip().rstrip()
+def stripped_text(element: Union[Tag, NavigableString], payload: dict):
+    payload["TeX"] += sanitize_string(element)
     for c in element.children:
         payload["TeX"] += generate_latex_from_element(c, payload)
     return payload
 
 
-def sanitize_text(element: NavigableString, payload: dict):
-    payload["TeX"] = sanitize_string(element.text)
+def sanitize_text(element: Union[Tag, NavigableString], payload: dict):
+    payload["TeX"] = sanitize_string(element)
     return payload
 
 
-def playback_check(element: NavigableString, payload: dict):
-    try:
-        text = sanitize_text(element, payload)["TeX"]
-        if (text.find("Webm/Mp4 playback not supported on your device.") != -1):
-            payload["TeX"] = "\\paragraph{}\n" + text + "\n"
-    except Exception as e:
-        print(e)
-    finally:
-        return payload
-
-
-def add_video(element: NavigableString, payload: dict):
+def add_video(element: Union[Tag, NavigableString], payload: dict):
     if (payload["__img_ext"][element.attrs["src"]] == ".webm"):
         return payload
 
@@ -120,7 +121,7 @@ def add_video(element: NavigableString, payload: dict):
     return payload
 
 
-def add_image(element: NavigableString, payload: dict):
+def add_image(element: Union[Tag, NavigableString], payload: dict):
     figure = "inTable" not in payload.keys()
     if figure:
         payload["TeX"] += "\\begin{figure}[H]\n\\centering"
@@ -130,25 +131,23 @@ def add_image(element: NavigableString, payload: dict):
     return payload
 
 
-def add_link(element: NavigableString, payload: dict):
+def add_link(element: Union[Tag, NavigableString], payload: dict):
     payload["TeX"] += "\\href{" + element.attrs[
-        "href"] + "}{" + sanitize_string(
-        element.text) + "}"
+        "href"] + "}{" + sanitize_string(element) + "}"
     return payload
 
 
-def fff_url(element: NavigableString, payload: dict):
+def fff_url(element: Union[Tag, NavigableString], payload: dict):
     payload["TeX"] += payload["__url"]
     return payload
 
 
-def fff_num(element: NavigableString, payload: dict):
+def fff_num(element: Union[Tag, NavigableString], payload: dict):
     payload["TeX"] += str(payload["__num"])
     return payload
 
 
 symbols = {
-
     "@table_size_str":               table_size_str,
     "@generate_latex_from_children": generate_latex_from_children,
     "@generate_table_cell_latex":    generate_table_cell_latex,
@@ -156,11 +155,9 @@ symbols = {
     "@table_flag_clear":             table_flag_clear,
     "@stripped_text":                stripped_text,
     "@sanitize_text":                sanitize_text,
-    "@playback_check":               playback_check,
     "@add_video":                    add_video,
     "@add_image":                    add_image,
     "@add_link":                     add_link,
     "@fff_url":                      fff_url,
     "@fff_num":                      fff_num
-
 }

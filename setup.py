@@ -1,7 +1,7 @@
 from setuptools import setup
 
 
-setup(name='FFFLaTeX', version='1.5.3.5', packages=["FFFLaTeX"],
+setup(name='FFFLaTeX', version='1.5.4', packages=["FFFLaTeX"],
       install_requires=[
     "beautifulsoup4", "urllib3", "html5lib"],
       url='https://github.com/helldragger/FactorioFridayFactsLaTeX',

@@ -15,7 +15,7 @@ tagTex = {
 \\usepackage[french]{babel}
 """,
     "documentTitle":  """
-\\title{Traduction FFF numero @fff_num ) }
+\\title{Traduction FFF numero @fff_num }
 \\author{ @fff_url }
 """,
     "documentBegin":  """
@@ -24,24 +24,24 @@ tagTex = {
     \\tableofcontents
 """,
     "documentEnd":    """
-\\end{document}\n
+\\end{document}
 """,
     "ul":             """
-\\begin{itemize}\n 
+\\begin{itemize} 
     @generate_latex_from_children 
-\\end{itemize}\n
+\\end{itemize}
 """,
     "table":          """
-\\begin{figure}[H]\n
-    \\resizebox{\\textwidth}{!}{\n
+\\begin{figure}[H]
+    \\resizebox{\\textwidth}{!}{
     @table_flag_set
-    \\begin{ tabular }{ @table_size_str }\n 
+    \\begin{ tabular }{ @table_size_str }
         
         @generate_latex_from_children 
         
-    \\end{tabular}}\n
+    \\end{tabular}}
     @table_flag_clear
-\\end{figure}\n
+\\end{figure}
 """,
     "tbody":          """
 @generate_latex_from_children
@@ -54,18 +54,21 @@ tagTex = {
 @generate_latex_from_children
 """,
     "li":             """
-\\item @sanitize_text \n
+\\item @sanitize_text
 """,
     "p":              """
-@playback_check
+\\paragraph{}
 @generate_latex_from_children
 """,
 
     "h2":             """
-\\section{ @sanitize_text }\n
+\\section{ @sanitize_text }
 """,
     "h3":             """
-\\subsection{ @sanitize_text }\n
+\\subsection{ @sanitize_text }
+""",
+    "h4":             """
+\\subsubsection{ @sanitize_text }
 """,
     "video":          """
 @generate_latex_from_children
@@ -78,5 +81,11 @@ tagTex = {
 """,
     "a":              """
 @add_link
+""",
+    "i":              """
+\\textit{ @sanitize_text }
+""",
+    "em":             """
+\\textbf{ @sanitize_text }
 """
 }

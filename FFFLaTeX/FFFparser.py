@@ -152,7 +152,8 @@ def main():
             "__img_urls": img_urls,
             "__img_ext": img_ext,
             "__img_names": img_names,
-            "__img_size": img_size
+            "__img_size": img_size,
+            "__abort": False
         }
 
         out.write(process_symbols(None, payload, get_latex_for_element(

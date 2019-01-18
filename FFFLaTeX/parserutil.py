@@ -75,15 +75,20 @@ def peek_next_word(data: str):
     return word
 
 
+class ParsingAbortedError(Exception):
+    pass
+
+
 def process_symbols(element: Optional[NavigableString], payload: dict,
-                    data: str, ):
+                    data: str):
     from FFFLaTeX.configSymbols import symbols
     # those arguments are needed for context
+
     if data is None:
         return ""
+
     cursor_i = 0
     while cursor_i < len(data):
-
         # skip whitespace
         temp_data_len = len(data[cursor_i::])
         temp_data = data[cursor_i::].lstrip()
@@ -110,7 +115,6 @@ def process_symbols(element: Optional[NavigableString], payload: dict,
         # at this point, we just remove the symbol from the data and replace
         # it with the TeX payload data from previous symbol calls
         # the cursor is then incremented to read the next data in the text
-
         data = data[:cursor_i:] + payload["TeX"] + data[cursor_i + len(word)::]
         cursor_i += len(payload["TeX"])
     # when all the symbols have been processed and no more data has been added,
@@ -119,8 +123,11 @@ def process_symbols(element: Optional[NavigableString], payload: dict,
 
 
 def generate_latex_from_element(element: NavigableString, payload: dict):
-    if element in ['\n', '\t', "\r\n", '\r']:
-        return ""
+    # if this is no tag, this is pure text
+    if isinstance(element, str):
+        if element.strip() == "":
+            return ""
+        return element
     data = process_symbols(element, payload,
                            get_latex_for_element(element.name))
     return data
