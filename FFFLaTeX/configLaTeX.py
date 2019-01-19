@@ -4,7 +4,7 @@ tagTex = {
     "documentHeader": """
 \\documentclass{article}
 
-\\usepackage[cp1252]{inputenc}
+\\usepackage[utf8]{inputenc}
 \\usepackage{graphicx}
 \\usepackage{media9}
 \\usepackage[OT1]{fontenc}
