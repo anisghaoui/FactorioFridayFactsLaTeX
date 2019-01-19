@@ -35,6 +35,7 @@ def table_size_str(element: Union[Tag, NavigableString], payload: dict):
 
 def table_flag_set(element: Union[Tag, NavigableString], payload: dict):
     payload["inTable"] = True
+    payload["first_row"] = True
     return payload
 
 
@@ -48,12 +49,15 @@ def generate_table_cell_latex(element: Union[Tag, NavigableString],
     i = 0
     for c in element.children:
         if c.name == "td":
+            if payload["first_row"]:
+                payload["TeX"] += "\\bfseries "
             payload["TeX"] += generate_latex_from_element(c, payload)
             i += 1
             if (i < payload["tableSize"]):
                 payload["TeX"] += '&'
 
     payload["TeX"] += "\\\\\\hline\n"
+    payload["first_row"] = False
     return payload
 
 
@@ -99,7 +103,7 @@ def add_video(element: Union[Tag, NavigableString], payload: dict):
     payload["TeX"] += """]
     {{\\color{gray} Loading Video }}
     {VPlayer9.swf}\n
-\\end{ figure }\n"""
+\\end{figure}\n"""
     return payload
 
 

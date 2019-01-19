@@ -13,6 +13,7 @@ tagTex = {
 \\usepackage{pgfplotstable}
 \\usepackage[hidelinks]{hyperref}
 \\usepackage[french]{babel}
+\\usepackage{colortbl}
 
 %color theme
 \\usepackage{wallpaper}
@@ -64,8 +65,9 @@ background.png }
     "table":          """
 \\begin{figure}[H]
     \\resizebox{\\textwidth}{!}{
+    \\arrayrulecolor{factoText}
     @table_flag_set
-    \\begin{ tabular }{ @table_size_str }
+    \\begin{tabular}{ @table_size_str }
         
         @generate_latex_from_children 
         
@@ -80,8 +82,7 @@ background.png }
 @generate_table_cell_latex
 """,
     "td":             """
-@sanitize_text
-@generate_latex_from_children
+\color{factoText} @generate_latex_from_children 
 """,
     "li":             """
 \\item @sanitize_text

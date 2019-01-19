@@ -12,11 +12,9 @@ def sanitize_string(text: Union[Tag, NavigableString, str]) -> str:
         "#":                                               "\\#",
         "&":                                               "\\&",
         "%":                                               "\\%",
-        "✕":                                               "x",
         "$":                                               "\\$",
         "\xa0":                                            " ",
         "Webm/Mp4 playback not supported on your device.": "",
-        "":                                                ""
     }
     for c in cursed.keys():
         text = text.replace(c, cursed[c])
@@ -145,7 +143,7 @@ def generate_latex_from_element(element: NavigableString, payload: dict):
     if isinstance(element, str):
         if element.strip() == "":
             return ""
-        return element
+        return sanitize_string(element)
     data = process_symbols(element, payload,
                            get_latex_for_element(element.name))
     return data

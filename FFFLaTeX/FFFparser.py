@@ -156,7 +156,8 @@ def write_latex_download_header(out, payload):
 
 def generate_latex_file(doc_name, payload, blog):
     ensure_dir("./" + doc_name + "/")
-    with open("./" + doc_name + "/" + doc_name + ".tex", "w") as out:
+    with open("./" + doc_name + "/" + doc_name + ".tex", "w",
+              encoding="utf-8") as out:
 
 
         from FFFLaTeX.parserutil import process_symbols, get_latex_for_element, \
