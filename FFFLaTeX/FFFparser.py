@@ -117,9 +117,82 @@ def filter_out_incompatible_medias(img_urls):
     return filter(lambda url: not url.endswith(".webm"), img_urls)
 
 
+def parse_fff_authors_data(data: str):
+    # start is after "Posted by" and ends before on @date
+    return data[len("Posted by"):data.find(" on "):]
+
+
+def parse_fff_date_data(data: str):
+    # start is after "Posted by" and ends before on @date
+    return data[data.find(" on ") + 3:data.rfind(","):]
+
+
+def parse_fff_author_and_date_from_header_str(header: str):
+    return (parse_fff_authors_data(header), parse_fff_date_data(header))
+
+
+def fff_data(blog):
+    from FFFLaTeX.parserutil import sanitize_string
+    title = sanitize_string(blog.find_next("h2"))
+    header = blog.find_next('div')
+    authors, date = parse_fff_author_and_date_from_header_str(header.text)
+    return date, authors, title
+
+
+def write_latex_download_header(out, payload):
+    for img_url in payload["__img_urls"]:
+        args = []
+        if payload["__img_size"][img_url] is not None:
+            args.append("width=" + str(payload["__img_size"][img_url]))
+
+        out.write("\\write18{wget -N " + img_url + " -P ../out/pics/ -O " +
+                  payload["__img_names"][img_url] + payload["__img_ext"][
+                      img_url] + " }\n" + "\\newcommand{\\" +
+                  payload["__img_names"][
+                      img_url] + "}{\\includegraphics[" + ','.join(
+            args) + "]{" + payload["__img_names"][img_url] +
+                  payload["__img_ext"][img_url] + "}}\n")
+
+
+def generate_latex_file(doc_name, payload, blog):
+    ensure_dir("./" + doc_name + "/")
+    with open("./" + doc_name + "/" + doc_name + ".tex", "w") as out:
+
+
+        from FFFLaTeX.parserutil import process_symbols, get_latex_for_element, \
+            generate_latex_from_element
+        out.write(process_symbols(None, payload,
+                                  get_latex_for_element("documentHeader")))
+
+        # generate constants
+        write_latex_download_header(out, payload)
+
+        out.write(process_symbols(None, payload,
+                                  get_latex_for_element("documentTitle")))
+
+        out.write(process_symbols(None, payload,
+                                  get_latex_for_element("documentBegin")))
+
+        # generate content
+        blog_temp = blog
+        size = 0
+        # we first travel the children space to determine their amount
+        for element in blog_temp.children:
+            size += 1
+
+        # we skip the first already read elements and the useless last ones
+        element_i = -1
+        for element in blog.children:
+            element_i += 1
+            if element_i <= 5 or element_i >= size - 4:
+                continue
+            else:
+                out.write(generate_latex_from_element(element, payload))
+
+        out.write(process_symbols(None, payload,
+                                  get_latex_for_element("documentEnd")))
+
 def main():
-    from FFFLaTeX.parserutil import get_latex_for_element, \
-        generate_latex_from_element, process_symbols
     img_urls = set()
     img_size = {}
     img_names = {}
@@ -129,8 +202,8 @@ def main():
     latest_version_data = get_latest_version_data()
     blog_url = get_blog_url(latest_version_data)
     num = get_blog_number(blog_url)
-    soup = get_soup(blog_url)
-
+    soup = get_soup(blog_url).find("div", class_="blog-post")
+    date, authors, title = fff_data(soup)
     soup, img_urls, img_size = generate_img_data(soup, img_urls, img_size)
     soup, img_urls, img_size = generate_mp4_data(soup, img_urls, img_size)
     img_urls, img_ext, img_size, img_names = generate_media_names(img_urls,
@@ -142,50 +215,20 @@ def main():
 
     doc_name = "FFF" + str(num)
 
-    ensure_dir("./" + doc_name + "/")
-
-    with open("./" + doc_name + "/" + doc_name + ".tex", "w") as out:
-        payload = {
-            "TeX":   "",
-            "__num": num,
-            "__url": blog_url,
-            "__img_urls": img_urls,
-            "__img_ext": img_ext,
-            "__img_names": img_names,
-            "__img_size": img_size,
-            "__abort": False
-        }
-
-        out.write(process_symbols(None, payload, get_latex_for_element(
-                                           "documentHeader")))
-
-        # generate constants
-        for img_url in img_urls:
-            args = []
-            if img_size[img_url] is not None:
-                args.append("width=" + str(img_size[img_url]))
-
-            out.write("\\write18{wget -N " + img_url + " -P ../out/pics/ -O " +
-                      img_names[img_url] + img_ext[
-                          img_url] + " }\n" + "\\newcommand{\\" + img_names[
-                          img_url] + "}{\\includegraphics[" + ','.join(
-                args) + "]{" + img_names[img_url] + img_ext[img_url] + "}}\n")
-
-        out.write(process_symbols(None, payload, get_latex_for_element(
-                                           "documentTitle")))
-
-        out.write(process_symbols(None, payload, get_latex_for_element(
-                                           "documentBegin")))
-
-        # generate content
-
-        blog = soup.find("div", class_="blog-post")
-
-        for element in blog.children:
-            out.write(generate_latex_from_element(element, payload))
-
-        out.write(process_symbols(None, payload, get_latex_for_element(
-                                           "documentEnd")))
+    payload = {
+        "TeX":         "",
+        "__num":       num,
+        "__date":      date,
+        "__authors":   authors,
+        "__title":     title,
+        "__url":       blog_url,
+        "__img_urls":  img_urls,
+        "__img_ext":   img_ext,
+        "__img_names": img_names,
+        "__img_size":  img_size,
+        "__abort":     False
+    }
+    generate_latex_file(doc_name, payload, soup)
 
 
 if __name__ == "__main__":

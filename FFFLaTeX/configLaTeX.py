@@ -11,17 +11,47 @@ tagTex = {
 \\usepackage{tabularx}
 \\usepackage{float}
 \\usepackage{pgfplotstable}
-\\usepackage[allbordercolors=white]{hyperref}
+\\usepackage[hidelinks]{hyperref}
 \\usepackage[french]{babel}
+
+%color theme
+\\usepackage{wallpaper}
+\\usepackage{xcolor}
+
+\\definecolor{factoText}{HTML}{C8C8C8}
+\\definecolor{factoLink}{HTML}{FF7200}
+
+%font theme
+
+\\usepackage[scaled]{helvet}
+\\renewcommand\\familydefault{\\sfdefault} 
+\\usepackage[T1]{fontenc}
+
+%page theme
+\\usepackage{fancyhdr}
+
+\\write18{wget -N https://factorio.com/static/img/factorio-logo.png -P 
+../out/pics/ -O 
+logo.png }
+\\write18{wget -N https://factorio.com/static/img/stressed_linen_texture.png 
+-P ../out/pics/ -O 
+background.png }
+
 """,
     "documentTitle":  """
-\\title{Traduction FFF numero @fff_num }
-\\author{ @fff_url }
+\\title{\\includegraphics[width=0.8\\textwidth]{logo.png} \\\\
+\\Large \\bfseries \\href{ @fff_url }{\\color{factoLink} @fff_title }}
+\\author{ @fff_authors }
+\\date{ @fff_date }
 """,
     "documentBegin":  """
 \\begin{document}
+    \\pagestyle{empty}
+    \\color{factoText}
+	\\TileWallPaper{\paperheight}{\paperwidth}{background.png}
+    
     \\maketitle
-    \\tableofcontents
+    \\pagestyle{empty}
 """,
     "documentEnd":    """
 \\end{document}
@@ -62,13 +92,13 @@ tagTex = {
 """,
 
     "h2":             """
-\\section{ @sanitize_text }
+\\section*{ @sanitize_text }
 """,
     "h3":             """
-\\subsection{ @sanitize_text }
+\\subsection*{ @sanitize_text }
 """,
     "h4":             """
-\\subsubsection{ @sanitize_text }
+\\subsubsection*{ @sanitize_text }
 """,
     "video":          """
 @generate_latex_from_children
@@ -80,12 +110,15 @@ tagTex = {
 @add_image
 """,
     "a":              """
-@add_link
+{\\color{factoLink} @add_link }
 """,
     "i":              """
 \\textit{ @sanitize_text }
 """,
     "em":             """
 \\textbf{ @sanitize_text }
+""",
+    "div":            """
+@generate_latex_from_children
 """
 }

@@ -1,8 +1,26 @@
 #  -*- coding: utf-8 -*-
-from typing import Optional
+from typing import Optional, Union
 
-from bs4 import NavigableString
+from bs4 import NavigableString, Tag
 
+
+def sanitize_string(text: Union[Tag, NavigableString, str]) -> str:
+    if isinstance(text, Tag):
+        text = text.text
+
+    cursed = {
+        "#":                                               "\\#",
+        "&":                                               "\\&",
+        "%":                                               "\\%",
+        "✕":                                               "x",
+        "$":                                               "\\$",
+        "\xa0":                                            " ",
+        "Webm/Mp4 playback not supported on your device.": "",
+        "":                                                ""
+    }
+    for c in cursed.keys():
+        text = text.replace(c, cursed[c])
+    return text.lstrip().rstrip()
 
 def get_latex_for_element(name: str):
     import FFFLaTeX.configLaTeX as latex

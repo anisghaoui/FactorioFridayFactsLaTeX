@@ -3,25 +3,7 @@ from typing import Union
 
 from bs4 import NavigableString, Tag
 
-from FFFLaTeX.parserutil import generate_latex_from_element
-
-
-def sanitize_string(text: Union[Tag, NavigableString, str]) -> str:
-    if isinstance(text, Tag):
-        text = text.text
-
-    cursed = {
-        "#":    "\\#",
-        "&":    "\\&",
-        "%":    "\\%",
-        "✕":    "x",
-        "$":    "\\$",
-        "\xa0": " ",
-        "Webm/Mp4 playback not supported on your device.": ""
-    }
-    for c in cursed.keys():
-        text = text.replace(c, cursed[c])
-    return text.lstrip().rstrip()
+from FFFLaTeX.parserutil import generate_latex_from_element, sanitize_string
 
 
 def generate_latex_from_children(element: Union[Tag, NavigableString],
@@ -147,6 +129,21 @@ def fff_num(element: Union[Tag, NavigableString], payload: dict):
     return payload
 
 
+def fff_title(element: Union[Tag, NavigableString], payload: dict):
+    payload["TeX"] += str(payload["__title"])
+    return payload
+
+
+def fff_date(element: Union[Tag, NavigableString], payload: dict):
+    payload["TeX"] += str(payload["__date"])
+    return payload
+
+
+def fff_authors(element: Union[Tag, NavigableString], payload: dict):
+    payload["TeX"] += str(payload["__authors"])
+    return payload
+
+
 symbols = {
     "@table_size_str":               table_size_str,
     "@generate_latex_from_children": generate_latex_from_children,
@@ -159,5 +156,8 @@ symbols = {
     "@add_image":                    add_image,
     "@add_link":                     add_link,
     "@fff_url":                      fff_url,
-    "@fff_num":                      fff_num
+    "@fff_num":                      fff_num,
+    "@fff_title":                    fff_title,
+    "@fff_date":                     fff_date,
+    "@fff_authors":                  fff_authors
 }
