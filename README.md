@@ -1,13 +1,17 @@
-[![](https://img.shields.io/pypi/dm/FFFLaTeX.svg)](https://pypi.org/project/FFFLaTeX/)
+
+#### Project release informations
+
 [![](https://img.shields.io/pypi/v/FFFLaTeX.svg)](https://pypi.org/project/FFFLaTeX/)
-
 ![](https://img.shields.io/pypi/pyversions/FFFLaTeX.svg)
-![](https://img.shields.io/pypi/wheel/FFFLaTeX.svg)
-
-
-![](https://img.shields.io/github/license/helldragger/FactorioFridayFactsLaTeX.svg)
 ![](https://img.shields.io/github/languages/code-size/helldragger/FactorioFridayFactsLaTeX.svg)
-![](https://img.shields.io/librariesio/sourcerank/pypi/FFFLaTeX.svg)
+
+#### Activity
+[![](https://img.shields.io/pypi/dm/FFFLaTeX.svg)](https://pypi.org/project/FFFLaTeX/)
+![](https://img.shields.io/github/commit-activity/y/helldragger/FactorioFridayFactsLaTeX.svg)
+![](https://img.shields.io/github/last-commit/helldragger/FactorioFridayFactsLaTeX.svg)
+
+#### Licensing
+![](https://img.shields.io/github/license/helldragger/FactorioFridayFactsLaTeX.svg)
 
 ## Installation
 You will need python 3.6+ and pip
@@ -16,12 +20,10 @@ You will need python 3.6+ and pip
 > pip install --upgrade FFFLaTeX
 ```
 
-## Launching the script
-
-Just as you would launch any other python script after installation:
+## Usage
 
 ``` bash
-> FFFLaTeX
+> FFFLaTeX [<Number of the relevant FFF>|latest]
 ```
 
 ## Output tex file
@@ -49,7 +51,6 @@ You can also use the command line directly as of 1.4
 ```
 
 You can also just generate the latest FFF now (xxx being the latest fff version on the factorio.com/blog/ listing)
-
 
 ```bash
 > FFFLaTeX latest
