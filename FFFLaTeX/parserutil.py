@@ -14,7 +14,9 @@ def sanitize_string(text: Union[Tag, NavigableString, str]) -> str:
         "%":                                               "\\%",
         "$":                                               "\\$",
         "\xa0":                                            " ",
-        "✕":                                               "x",
+        "≥":                                               "$\\ge$",
+        "⩽":                                               "$\\le$",
+        "≠":                                               "$\\ne$",
         "Webm/Mp4 playback not supported on your device.": "",
     }
     for c in cursed.keys():

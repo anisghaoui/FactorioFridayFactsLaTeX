@@ -108,6 +108,9 @@ def add_video(element: Union[Tag, NavigableString], payload: dict):
 
 
 def add_image(element: Union[Tag, NavigableString], payload: dict):
+    if payload["__img_ext"][element.attrs["src"]] == ".gif":
+        return add_video(element, payload)
+
     figure = "inTable" not in payload.keys()
     if figure:
         payload["TeX"] += "\\begin{figure}[H]\n\\centering"

@@ -69,10 +69,7 @@ def get_soup(url: str):
 def generate_img_data(soup, img_urls, img_size):
     for link in soup.find_all('img'):
         img_urls.add(link.get('src'))
-        width = link.get('width')
-        if width is None:
-            width = "0.8\\textwidth"
-        img_size[link.get('src')] = width
+        img_size[link.get('src')] = "0.8\\textwidth"
     return (soup, img_urls, img_size)
 
 
@@ -80,10 +77,7 @@ def generate_mp4_data(soup, img_urls, img_size):
     for link in soup.find_all('source'):
         src = link.get('src')
         img_urls.add(src)
-        width = link.get('width')
-        if width is None:
-            width = "0.8\\textwidth"
-        img_size[link.get('src')] = width
+        img_size[link.get('src')] = "0.8\\textwidth"
     return (soup, img_urls, img_size)
 
 
